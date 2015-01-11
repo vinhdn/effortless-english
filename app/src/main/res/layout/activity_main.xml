@@ -1,0 +1,29 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_activity"
+    tools:context="effortlessenglish.estorm.vn.effortlessenglish.Activity.MainActivity">
+
+    <GridView
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:choiceMode="none"
+        android:numColumns="2"
+        android:divider="@null"
+        android:horizontalSpacing="5dp"
+        android:verticalSpacing="5dp"
+        android:dividerHeight="0dp"
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:fadeScrollbars="false"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:listSelector="@android:color/transparent"
+        android:drawSelectorOnTop="false"
+        android:id="@+id/main_gridview_item"
+        ></GridView>
+
+</RelativeLayout>

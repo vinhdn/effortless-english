@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bg_itemcd"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/sadown">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_selector_while">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="4dp">
+
+            <ImageView
+                android:id="@+id/menu_item_image"
+                android:layout_width="70dip"
+                android:layout_height="70dip"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/originalenglish" />
+
+            <TextView
+                android:id="@+id/menu_item_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/menu_item_image"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="10dp"
+                android:layout_centerVertical="true"
+                android:textColor="#303030"
+                android:textSize="20sp" />
+        </RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>

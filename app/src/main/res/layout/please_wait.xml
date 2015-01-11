@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/waiting_root"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/translucent">
+
+    <ImageView
+        android:id="@+id/waiting_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/circle_layer" />
+
+    <TextView
+        android:id="@+id/please_wait_text"
+        style="@style/PleaseWaitText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/waiting_circle"
+        android:layout_marginTop="10.0dip"
+        android:gravity="center"
+        android:text="@string/wait" />
+
+</RelativeLayout>

@@ -1,0 +1,56 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+       <item name="android:screenOrientation">portrait</item>
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <style name="PleaseWaitText">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:shadowColor">@android:color/black</item>
+        <item name="android:shadowDx">1.0</item>
+        <item name="android:shadowDy">1.0</item>
+        <item name="android:shadowRadius">1.0</item>
+    </style>
+
+    <style name="PleaseWaitDialog" parent="@style/Theme.NoTitleBar.Fullscreen.Translucent">
+        <item name="android:windowAnimationStyle">@style/PleaseWaitDialogAnimation</item>
+    </style>
+
+    <style name="PleaseWaitDialogAnimation">
+        <item name="android:windowExitAnimation">@anim/please_wait_fade_out</item>
+    </style>
+    <style name="Theme.NoTitleBar.Fullscreen.Translucent" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowBackground">@color/translucent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
+
+    <style name="CustomActionBarTheme"
+        parent="@style/Theme.AppCompat">
+        <item name="android:screenOrientation">portrait</item>
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+    </style>
+
+    <!-- ActionBar styles -->
+    <style name="MyActionBar"
+        parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/blue_action_bar</item>
+        <!-- Support library compatibility -->
+        <item name="background">@color/blue_action_bar</item>
+    </style>
+
+    <!-- ActionBar title text -->
+    <style name="MyActionBarTitleText"
+        parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+        <!-- The textColor property is backward compatible with the Support Library -->
+    </style>
+
+
+</resources>

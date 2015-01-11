@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_activity">
+
+    <RelativeLayout
+        android:id="@+id/list_no_have_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@color/orgrince"
+        android:visibility="gone"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_have_item"
+            android:textAlignment="center"
+            android:padding="5dp"
+            android:textColor="@android:color/white"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            />
+        </RelativeLayout>
+    <ListView
+        android:id="@+id/menu_item"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="7dp"
+        android:listSelector="@android:color/transparent"
+        android:drawSelectorOnTop="false"
+        />
+
+</RelativeLayout>

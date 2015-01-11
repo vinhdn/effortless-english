@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="blue_action_bar">#00b4ff</color>
+    <color name="orgrince">#ff8800</color>
+    <color name="bg_activity">#e4e4e4</color>
+    <color name="translucent">#77000000</color>
+    <color name="bg_notification_bg">#ff31393d</color>
+    <color name="bg_notification_bt_press">#ff19a0e4</color>
+    <color name="color_transparent">#00000000</color>
+</resources>

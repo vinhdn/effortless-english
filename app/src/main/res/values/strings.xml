@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Effortless English</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_menu">MenuActivity</string>
+    <string name="title_activity_player">PlayerActivity</string>
+    <string name="empty"></string>
+    <string name="check_network">Network not avaiable</string>
+    <string name="wait">Loading...</string>
+    <string name="title_activity_sub_menu">SubMenuActivity</string>
+    <string name="no_have_item">No have item</string>
+    <string name="title_activity_lession">LessionActivity</string>
+
+</resources>
