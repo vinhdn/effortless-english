@@ -11,10 +11,31 @@
         android:scaleType="centerCrop"
         android:contentDescription="@string/empty"
         android:alpha="30.0" />
-
+    <RelativeLayout
+        android:id="@+id/lession_control_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/lession_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_downloaded"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            />
+        <com.viewpagerindicator.CirclePageIndicator
+            android:id="@+id/indicator"
+            android:padding="10dip"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            />
+        </RelativeLayout>
     <android.support.v4.view.ViewPager
         android:id="@+id/workspace"
         android:visibility="visible"
+        android:layout_below="@+id/lession_control_download"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="2.0dip"

@@ -51,7 +51,9 @@ public class MenuActivity extends BaseActivity implements ListView.OnItemClickLi
 
     @Override
     public void onConnectServcie() {
-
+        if( service != null && service.getCurrentLession() != null && service.getCurrentLession().getId() > 0){
+            showController();
+        }
     }
 
     @Override

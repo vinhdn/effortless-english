@@ -7,6 +7,8 @@ import android.util.Log;
 
 import java.io.File;
 
+import effortlessenglish.estorm.vn.effortlessenglish.Models.Models;
+
 
 public class LocalStorage {
 	
@@ -22,9 +24,14 @@ public class LocalStorage {
 		lsDb.open();
 	}
 
+    public void insertModels(Models models){
+        lsDb.insertModels(models);
+    }
 
-	
-	
+    public Models getModels(int id){
+        return lsDb.getModels(id);
+    }
+
 	public void removeAllData() throws StorageUnavailableException {
 		Log.d(TAG, "removeAllData()");
 		checkLocalStorageState();

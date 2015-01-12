@@ -43,6 +43,14 @@ public class MainActivity extends BaseActivity implements GridView.OnItemClickLi
 
     @Override
     public void onConnectServcie() {
+        if( service != null && service.getCurrentLession() != null && service.getCurrentLession().getId() > 0){
+            showController();
+        }
+        if(mApp.getLastPlay().equals(""))
+            return;
+        String[] listID = mApp.getLastPlay().split(",");
+        if(listID.length != 2)
+            return;
 
     }
 

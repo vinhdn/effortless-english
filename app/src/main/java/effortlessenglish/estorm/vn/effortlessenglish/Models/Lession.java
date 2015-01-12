@@ -8,9 +8,6 @@ import org.json.JSONObject;
  */
 public class Lession extends Menu {
 
-    private String link;
-    private int likes;
-
     public String getLargeImage() {
         return largeImage;
     }
@@ -20,23 +17,7 @@ public class Lession extends Menu {
     }
 
     private String largeImage;
-    public String getLink() {
-        return link;
-    }
 
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    @Override
-    public int getLikes() {
-        return likes;
-    }
-
-    @Override
-    public void setLikes(int likes) {
-        this.likes = likes;
-    }
 
     public Lession(){
         super();

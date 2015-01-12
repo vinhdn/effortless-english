@@ -96,7 +96,9 @@ public class LessionActivity extends BaseActivity implements ListView.OnItemClic
 
     @Override
     public void onConnectServcie() {
-
+        if( service != null && service.getCurrentLession() != null && service.getCurrentLession().getId() > 0){
+            showController();
+        }
     }
 
     @Override

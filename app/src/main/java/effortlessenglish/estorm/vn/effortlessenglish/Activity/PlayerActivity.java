@@ -22,7 +22,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
     ViewPager mPager;
     CirclePageIndicator mIndicator;
     private SeekBar seekBar;
-    private ImageView btPlay, btNext, btPre;
+    private ImageView btPlay, btNext, btPre, btDownload;
     private TextView tvTotalTime, tvCurrentTime;
     private boolean isCreated = false;
     //Handler object.
@@ -116,6 +116,7 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
             }else
                 btPlay.setImageResource(R.drawable.btn_playing_play);
             mPager.setAdapter(new PlayerViewAdapter(getSupportFragmentManager(),service));
+            mIndicator.setViewPager(mPager);
             this.setTitle(service.getCurrentLession().getName());
             try {
                 setSeekbarDuration(getTotalTimePlayer()/1000);
@@ -136,14 +137,17 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
         btPlay = (ImageView)findViewById(R.id.play_or_pause);
         btPre = (ImageView)findViewById(R.id.play_pre);
         btNext = (ImageView)findViewById(R.id.play_next);
+        btDownload = (ImageView) findViewById(R.id.lession_download);
         seekBar = (SeekBar) findViewById(R.id.seek_bar_progress);
         tvCurrentTime = (TextView) findViewById(R.id.txt_current_time);
         tvTotalTime = (TextView) findViewById(R.id.txt_total_time);
         btPlay.setOnClickListener(this);
         btNext.setOnClickListener(this);
         btPre.setOnClickListener(this);
+        btDownload.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(lessionSeekbar);
         mPager = (ViewPager) findViewById(R.id.workspace);
+        mIndicator = (CirclePageIndicator)findViewById(R.id.indicator);
         hideController();
         isCreated = true;
     }
@@ -210,6 +214,10 @@ public class PlayerActivity extends BaseActivity implements View.OnClickListener
             case R.id.play_or_pause:
                 if(service != null)
                 service.clickPlayButton();
+                break;
+            case R.id.lession_download:
+                if(service != null)
+                    service.saveOfflineLession();
                 break;
         }
     }

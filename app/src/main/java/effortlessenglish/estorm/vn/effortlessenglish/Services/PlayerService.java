@@ -1,6 +1,7 @@
 package effortlessenglish.estorm.vn.effortlessenglish.Services;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -13,6 +14,7 @@ import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build.VERSION;
 import android.os.IBinder;
@@ -22,11 +24,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 import effortlessenglish.estorm.vn.effortlessenglish.EffortlessApplication;
 import effortlessenglish.estorm.vn.effortlessenglish.Models.Lession;
+import effortlessenglish.estorm.vn.effortlessenglish.Models.Models;
 import effortlessenglish.estorm.vn.effortlessenglish.R;
 import effortlessenglish.estorm.vn.effortlessenglish.Utils.Constants;
 
@@ -38,7 +46,7 @@ public class PlayerService extends Service implements OnPreparedListener,
     private static PlayerService mInstance = null;
     public MediaPlayer mMediaPlayer;
     private int statusPlayer; // status of player , 1 is playing, 2 is pause...
-
+    private NotificationManager mNotificationManager;
     private Lession lessionPlaying;
     private ArrayList<Lession> listLession;
 
@@ -58,6 +66,8 @@ public class PlayerService extends Service implements OnPreparedListener,
     public int playingQuality;
     public int qualitySetting;
     public boolean offlineMode = false;
+
+    EffortlessApplication mApp;
     // The volume we set the media player to when we lose audio focus, but are
     // allowed to reduce
     // the volume instead of stopping playback.
@@ -115,6 +125,8 @@ public class PlayerService extends Service implements OnPreparedListener,
     @Override
     public void onCreate() {
         super.onCreate();
+        mApp = (EffortlessApplication) getApplication();
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         lessionPlaying = new Lession();
         listLession = new ArrayList<>();
         application = (EffortlessApplication) getApplication();
@@ -270,15 +282,23 @@ public class PlayerService extends Service implements OnPreparedListener,
         String mp3URL = lession.getLink();
         Log.d("VInh - URL Lession", mp3URL);
         try {
+            Models lessionOffline = mApp.getLocalStorage().getModels(lession.getId());
+            if (lessionOffline.getId() == lession.getId()) {
+                mp3URL = Constants.FOLDER_LESSION + "/" + lession.getParent().getId() + "/" + lession.getId() + ".mp3";
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        try {
             if (TextUtils.isEmpty(mp3URL) || !mp3URL.contains("http://")) {
-                Log.d(TAG, "null url");
+                Log.d(TAG, "null url" + mp3URL);
             }
 
         } catch (Exception exception) {
             exception.printStackTrace();
-            return;
+            //return;
         }
-
+        Log.d(TAG, "url" + mp3URL);
         try {
             mMediaPlayer.setDataSource(mp3URL);
         } catch (IllegalArgumentException e) {
@@ -567,11 +587,11 @@ public class PlayerService extends Service implements OnPreparedListener,
 
     public int getCurrentTimePlayer() {
         int i = 0;
-            MediaPlayer mediaplayer = mMediaPlayer;
-            i = 0;
-            if (mediaplayer != null) {
-                i = mMediaPlayer.getCurrentPosition();
-            }
+        MediaPlayer mediaplayer = mMediaPlayer;
+        i = 0;
+        if (mediaplayer != null) {
+            i = mMediaPlayer.getCurrentPosition();
+        }
         return i;
     }
 
@@ -684,10 +704,119 @@ public class PlayerService extends Service implements OnPreparedListener,
 
     }
 
-    public boolean isPlaying(){
-        if(statusPlayer == 1)
+    public boolean isPlaying() {
+        if (statusPlayer == 1)
             return true;
         return false;
+    }
+
+    public static boolean isDownloading = false;
+    public static final String ACTION_DOWNLOAD = "vn.vinhblue.effortless.action.DOWNLOAD";
+    android.support.v4.app.NotificationCompat.Builder mBuilder;
+
+    private class DownloadTask extends AsyncTask<Void, Integer, String> {
+
+        int id, idPar;
+        String name, link;
+
+
+        public DownloadTask(int ID, int idPar, String name, String link) {
+            this.id = ID;
+            this.idPar = idPar;
+            this.name = name;
+            this.link = link;
+        }
+
+        private void Download() throws Exception {
+            try {
+                URL url = new URL(link);
+                HttpURLConnection c = (HttpURLConnection) url.openConnection();
+                c.setRequestMethod("GET");
+                c.connect();
+                File outputFile = new File(Constants.FOLDER_LESSION + "/" + idPar, id + ".mp3");
+                if (!outputFile.getParentFile().exists())
+                    outputFile.getParentFile().mkdirs();
+                FileOutputStream fos = new FileOutputStream(outputFile);
+                InputStream is = c.getInputStream();
+                byte[] buffer = new byte[1024];
+                int len1 = 0;
+                long lengthCurrent = 0;
+                long lengthFile = c.getContentLength();
+                int percent = 0;
+                while ((len1 = is.read(buffer)) != -1) {
+                    lengthCurrent += len1;
+                    if ((lengthCurrent * 100) / lengthFile > percent) {
+                        percent = (int) ((lengthCurrent * 100) / lengthFile);
+                        mBuilder.setProgress(100, Math.abs(percent), false);
+                        mNotificationManager.notify(111, mBuilder.build());
+                    }
+                    fos.write(buffer, 0, len1);
+
+                }
+                fos.close();
+                is.close();// till here, it works fine - .apk is download to my
+                // sdcard in download file
+                mBuilder.setContentText("Download complete")
+                        // Removes the progress bar
+                        .setProgress(0, 0, false);
+                mNotificationManager.notify(111, mBuilder.build());
+                mNotificationManager.cancel(111);
+            } catch (Exception e) {
+                Log.d("ERROR", e.toString());
+                mBuilder.setContentText("Download error!")
+                        // Removes the progress bar
+                        .setProgress(0, 0, false);
+                mNotificationManager.notify(111, mBuilder.build());
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            stopSelf();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                //Update(params[0], params[1]);
+                Download();
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mBuilder = new NotificationCompat.Builder(getApplicationContext());
+            mBuilder.setContentTitle(name)
+                    .setContentText("saving in progress")
+                    .setSmallIcon(R.drawable.ic_launcher);
+            mBuilder.setProgress(100, 0, false);
+            mNotificationManager.notify(111, mBuilder.build());
+        }
+
+    }
+
+    public void saveOfflineLession() {
+        Log.d("Save Offline",getCurrentLession().getName());
+        if (this.getCurrentLession() != null) {
+            Models model = this.getCurrentLession();
+            while (model!= null && model.getId() > 0) {
+                mApp.getLocalStorage().insertModels(model);
+                model = model.getParent();
+            }
+            File outputFile = new File(Constants.FOLDER_LESSION + "/" +
+                    this.getCurrentLession().getParent().getId(),
+                    this.getCurrentLession().getId() + ".mp3");
+            if(outputFile.exists())
+                return;
+            new DownloadTask(this.getCurrentLession().getId(),
+                    this.getCurrentLession().getParent().getId(),
+                    this.getCurrentLession().getName(),
+                    this.getCurrentLession().getLink()).execute();
+        }
     }
 
 }

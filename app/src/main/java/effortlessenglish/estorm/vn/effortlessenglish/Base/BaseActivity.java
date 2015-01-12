@@ -189,7 +189,7 @@ public abstract class BaseActivity extends ActionBarActivity implements View.OnC
                                        IBinder binder) {
             PlayerService.LessionBinder b = (PlayerService.LessionBinder) binder;
             service = b.getService();
-            if( service != null && service.getCurrentLession() != null){
+            if( service != null && service.getCurrentLession() != null && service.getCurrentLession().getId() > 0){
                 onConnectServcie();
                 //showController();
                 changeController();

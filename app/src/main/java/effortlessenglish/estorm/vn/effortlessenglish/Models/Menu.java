@@ -23,6 +23,7 @@ public class Menu extends Models {
             setName(jsonObject.getString("Name"));
         }
         if(parent != null){
+            setParent(parent);
             setIdParMenu(parent.getId());
             setNameParMenu(parent.getName());
         }

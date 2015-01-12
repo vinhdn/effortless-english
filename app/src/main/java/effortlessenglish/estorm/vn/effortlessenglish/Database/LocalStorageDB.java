@@ -15,7 +15,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-import effortlessenglish.estorm.vn.effortlessenglish.Models.Lession;
 import effortlessenglish.estorm.vn.effortlessenglish.Models.Models;
 
 /**
@@ -69,21 +68,51 @@ public class LocalStorageDB {
     public Models getModelFromCursor(Cursor cursor){
         Models models = new Models();
         models.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
-        models.setType(Models.TYPE_MODEL.values()[cursor.getInt(cursor.getColumnIndex(COLUMN_ID))]);
+        models.setType(Models.TYPE_MODEL.values()[cursor.getInt(cursor.getColumnIndex(COLUMN_TYPE))]);
         models.setName(cursor.getString(cursor.getColumnIndex(COLUMN_NAME)));
         models.setDescription(cursor.getString(cursor.getColumnIndex(COLUMN_DES)));
         models.setIdParMenu(cursor.getInt(cursor.getColumnIndex(COLUMN_ID_PAR)));
         models.setLikes(cursor.getInt(cursor.getColumnIndex(COLUMN_LIKES)));
-        if(models.getType().equals(Models.TYPE_MODEL.LESSION)){
-            Lession lession = (Lession)models;
-            lession.setLink(cursor.getString(cursor.getColumnIndex(COLUMN_LINK)));
-            return lession;
-        }
+        models.setLink(cursor.getString(cursor.getColumnIndex(COLUMN_LINK)));
         return models;
     }
 
-    public ArrayList<Models> getListModels(int subID, Models.TYPE_MODEL type){
+    public Models getModels(int id){
+        Cursor cursor = null;
+        try{
+            cursor = database.query(TABLE_MODEL,null,
+                    COLUMN_ID + " = " + id,null,null,null,null);
+            if(cursor != null){
+                cursor.moveToFirst();
+                    Models models = getModelFromCursor(cursor);
+                cursor.close();
+                return models;
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return new Models();
+    }
+
+    public ArrayList<Models> getListModels(int subID, int type){
         ArrayList<Models> listData = new ArrayList<>();
+        Cursor cursor = null;
+        try{
+            cursor = database.query(TABLE_MODEL,null,
+                    COLUMN_ID_PAR + " = " + subID +
+                    " AND " + COLUMN_TYPE + " = " + type,null,null,null,null);
+            if(cursor != null){
+                cursor.moveToFirst();
+                do{
+                    Models models = getModelFromCursor(cursor);
+                    listData.add(models);
+                }while (cursor.moveToNext());
+                cursor.close();
+            }
+        }catch (Exception ex){
+            listData = new ArrayList<>();
+            ex.printStackTrace();
+        }
         return listData;
     }
 
@@ -111,10 +140,7 @@ public class LocalStorageDB {
         values.put(COLUMN_DES, models.getDescription());
         values.put(COLUMN_ID_PAR,models.getIdParMenu());
         values.put(COLUMN_LIKES,models.getLikes());
-        String link = "";
-        if(models.getType().equals(Models.TYPE_MODEL.LESSION))
-            link = ((Lession)models).getLink();
-        values.put(COLUMN_LINK,link);
+        values.put(COLUMN_LINK,models.getLink());
         return values;
     }
 

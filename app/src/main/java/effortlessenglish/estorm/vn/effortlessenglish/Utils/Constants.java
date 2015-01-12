@@ -1,5 +1,7 @@
 package effortlessenglish.estorm.vn.effortlessenglish.Utils;
 
+import java.io.File;
+
 import effortlessenglish.estorm.vn.effortlessenglish.Models.Danhmuc;
 import effortlessenglish.estorm.vn.effortlessenglish.Models.Lession;
 
@@ -19,6 +21,11 @@ public class Constants {
     public static Lession lessionPlaying;
     public static int indexLession = 0;
     public static Danhmuc selectedDanhmuc = new Danhmuc();
+
+    public static final String FOLDER_ROOT_NAME = "EfforlessEnglish";
+    public static final String FOLDER_ROOT_PATH = FileManager.EXTERNAL_PATH
+            + File.separator + FOLDER_ROOT_NAME;
+    public static final String FOLDER_LESSION = FOLDER_ROOT_PATH + File.separator + "lessions";
 
     /**
      * Converts milliseconds to hh:mm:ss format.

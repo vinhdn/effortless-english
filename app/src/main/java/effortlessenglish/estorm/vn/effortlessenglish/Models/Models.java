@@ -12,6 +12,26 @@ public class Models{
     private TYPE_MODEL type;
     private int likes;
 
+    public Models getParent() {
+        return parent;
+    }
+
+    public void setParent(Models parent) {
+        this.parent = parent;
+    }
+
+    private Models parent;
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    private String link;
+
     public String getImage() {
         return image;
     }
@@ -30,6 +50,8 @@ public class Models{
         this.nameParMenu = "";
         this.type = TYPE_MODEL.NONE;
         this.image = "";
+        this.link = "";
+        this.parent = null;
     }
 
     public int getId() {
