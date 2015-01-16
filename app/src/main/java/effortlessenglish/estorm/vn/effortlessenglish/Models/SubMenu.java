@@ -12,6 +12,10 @@ public class SubMenu extends Menu {
         super();
     }
 
+    public SubMenu(Models models){
+        super(models);
+    }
+
     public SubMenu(JSONObject jsonObject, Models sub) throws JSONException {
         super(jsonObject,sub);
         setType(TYPE_MODEL.SUBMENU);

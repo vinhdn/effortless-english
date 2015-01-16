@@ -32,6 +32,7 @@ public abstract class BaseActivity extends ActionBarActivity implements View.OnC
     protected EffortlessApplication mApp;
     protected PlayerService service;
     protected PlayerBroadcast mBroadcastListener = new PlayerBroadcast(this);
+    protected static final int INITIAL_DELAY_MILLIS = 600;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +70,7 @@ public abstract class BaseActivity extends ActionBarActivity implements View.OnC
         getLayoutInflater().inflate(id, contentView);
         super.setContentView(rootLayout);
         setActionView();
-        findViewById(R.id.include_layout_control).setOnClickListener(this);
+        findViewById(R.id.layout_control).setOnClickListener(this);
         Intent intent= new Intent(this, PlayerService.class);
         bindService(intent, mConnection,
                 Context.BIND_AUTO_CREATE);
@@ -80,7 +81,7 @@ public abstract class BaseActivity extends ActionBarActivity implements View.OnC
 
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.include_layout_control){
+        if(v.getId() == R.id.layout_control){
             Intent i = new Intent(BaseActivity.this, PlayerActivity.class);
             startActivity(i);
         }
@@ -91,11 +92,11 @@ public abstract class BaseActivity extends ActionBarActivity implements View.OnC
     }
 
     public void hideController() {
-        findViewById(R.id.include_layout_control).setVisibility(View.GONE);
+        findViewById(R.id.layout_control).setVisibility(View.GONE);
     }
 
     public void showController() {
-        findViewById(R.id.include_layout_control).setVisibility(View.VISIBLE);
+        findViewById(R.id.layout_control).setVisibility(View.VISIBLE);
     }
 
     protected boolean isNetwork() {
@@ -212,6 +213,13 @@ public abstract class BaseActivity extends ActionBarActivity implements View.OnC
         localIntentFilter.addAction(PlayerBroadcast.BR_STOP);
         localIntentFilter.addAction(PlayerBroadcast.BR_START);
         localIntentFilter.addAction(PlayerBroadcast.BR_LOADING);
+        localIntentFilter.addAction(PlayerBroadcast.BR_CHANGE_LESSION);
+        localIntentFilter.addAction(PlayerBroadcast.BR_FINISH_DOWNLOAD);
         registerReceiver(this.mBroadcastListener, localIntentFilter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

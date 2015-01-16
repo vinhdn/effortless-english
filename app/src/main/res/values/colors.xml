@@ -7,4 +7,7 @@
     <color name="bg_notification_bg">#ff31393d</color>
     <color name="bg_notification_bt_press">#ff19a0e4</color>
     <color name="color_transparent">#00000000</color>
+    <color name="color_bg_text">#40000000</color>
+    <color name="about_content">#ff757373</color>
+    <color name="greate_btn">#ff46bc61</color>
 </resources>

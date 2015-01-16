@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import effortlessenglish.estorm.vn.effortlessenglish.Models.Menu;
+import effortlessenglish.estorm.vn.effortlessenglish.Models.Models;
 import effortlessenglish.estorm.vn.effortlessenglish.R;
 
 /**
@@ -20,9 +20,9 @@ import effortlessenglish.estorm.vn.effortlessenglish.R;
 public class MenuItemAdapter extends BaseAdapter{
 	
 	private Context mContext;
-    private ArrayList<Menu> data;
+    private ArrayList<Models> data;
 	
-	public MenuItemAdapter(Context context, ArrayList<Menu> data){
+	public MenuItemAdapter(Context context, ArrayList<Models> data){
 		this.mContext = context;
         this.data = data;
 	}
@@ -58,6 +58,8 @@ public class MenuItemAdapter extends BaseAdapter{
 			holder = (MenuHolder)view.getTag();
 		}
 		holder.title.setText(data.get(p).getName());
+        if(data.get(p).getId() > 0)
+            holder.image.setImageResource(data.get(p).getImage());
 		return view;
 	}
 	

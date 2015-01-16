@@ -18,6 +18,7 @@ public class Models{
 
     public void setParent(Models parent) {
         this.parent = parent;
+        this.image = parent.getImage();
     }
 
     private Models parent;
@@ -32,15 +33,15 @@ public class Models{
 
     private String link;
 
-    public String getImage() {
+    public int getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(int image) {
         this.image = image;
     }
 
-    private String image;
+    private int image;
 
     public Models(){
         this.id = 0;
@@ -49,9 +50,21 @@ public class Models{
         this.idParMenu = 0;
         this.nameParMenu = "";
         this.type = TYPE_MODEL.NONE;
-        this.image = "";
+        this.image = 0;
         this.link = "";
         this.parent = null;
+    }
+
+    public Models(Models model){
+        this.id = model.getId();
+        this.description = model.getDescription();
+        this.name = model.getName();
+        this.idParMenu = model.getIdParMenu();
+        this.nameParMenu = model.getNameParMenu();
+        this.type = model.getType();
+        this.image = model.getImage();
+        this.link = model.getLink();
+        this.parent = model.getParent();
     }
 
     public int getId() {

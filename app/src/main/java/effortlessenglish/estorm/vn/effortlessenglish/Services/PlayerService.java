@@ -14,6 +14,7 @@ import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build.VERSION;
@@ -23,6 +24,7 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,12 +41,16 @@ import effortlessenglish.estorm.vn.effortlessenglish.R;
 import effortlessenglish.estorm.vn.effortlessenglish.Utils.Constants;
 
 public class PlayerService extends Service implements OnPreparedListener,
-        OnCompletionListener, OnErrorListener, OnBufferingUpdateListener {
+        OnCompletionListener, OnErrorListener, OnBufferingUpdateListener, MusicFocusable {
 
     // debug TAG
     private static final String TAG = PlayerService.class.getSimpleName();
     private static PlayerService mInstance = null;
     public MediaPlayer mMediaPlayer;
+    // our AudioFocusHelper object, if it's available (it's available on SDK
+    // level >= 8)
+    // If not available, this will be null. Always check for null before using!
+    AudioFocusHelper mAudioFocusHelper = null;
     private int statusPlayer; // status of player , 1 is playing, 2 is pause...
     private NotificationManager mNotificationManager;
     private Lession lessionPlaying;
@@ -117,6 +123,7 @@ public class PlayerService extends Service implements OnPreparedListener,
             }
             Log.d(TAG, "stop nhe");
             stopForeground(true);
+            stopSelf();
             return START_STICKY;
         }
         return super.onStartCommand(intent, flags, startId);
@@ -131,6 +138,14 @@ public class PlayerService extends Service implements OnPreparedListener,
         listLession = new ArrayList<>();
         application = (EffortlessApplication) getApplication();
         registerReceiver(audioStreamReceiver, intentFilter);
+        // create the Audio Focus Helper, if the Audio Focus feature is
+        // available (SDK 8 or above)
+        if (android.os.Build.VERSION.SDK_INT >= 8)
+            mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(),
+                    this);
+        else
+            mAudioFocus = AudioFocus.Focused; // no focus feature, so we always
+        // "have" audio focus
     }
 
     @Override
@@ -186,6 +201,7 @@ public class PlayerService extends Service implements OnPreparedListener,
 
     @Override
     public void onPrepared(MediaPlayer mMediaPlayer) {
+        isPrepared = true;
         startMediaPlayer();
         broadCastMusicLoaded();
         broadCastMusicStarting();
@@ -235,10 +251,15 @@ public class PlayerService extends Service implements OnPreparedListener,
     }
 
     public void playNextSong() {
+        playSongIndex(indexSongPlay + 1);
+    }
 
+    public void playPreSong(){
+        playSongIndex(indexSongPlay - 1);
     }
 
     public void playSong(Lession lession) {
+        isPrepared = false;
         statusPlayer = 1;
         if (lession != null && lession.getLink() != null
                 && lession.getLink().length() > 0) {
@@ -270,6 +291,8 @@ public class PlayerService extends Service implements OnPreparedListener,
                 mMediaPlayer.prepareAsync();
             }
             Constants.lessionPlaying = lession;
+//            broadCastMusicLoaded();
+//            broadCastMusicStarting();
             // mMediaPlayer.start();
             return;
         } catch (Exception exception) {
@@ -281,12 +304,29 @@ public class PlayerService extends Service implements OnPreparedListener,
         createMediaPlayer();
         String mp3URL = lession.getLink();
         Log.d("VInh - URL Lession", mp3URL);
+        boolean isOffline = false;
         try {
-            Models lessionOffline = mApp.getLocalStorage().getModels(lession.getId());
-            if (lessionOffline.getId() == lession.getId()) {
-                mp3URL = Constants.FOLDER_LESSION + "/" + lession.getParent().getId() + "/" + lession.getId() + ".mp3";
+            String urll = Constants.FOLDER_LESSION + "/" + lession.getParent().getId() + "/" + lession.getId() + ".mp3";
+            Log.d("URL OFFLINE",urll);
+            File fileMp3 = new File(urll);
+            boolean isSaved = false;
+            try{
+                Models modelSave = mApp.getLocalStorage().getModels(lession.getId());
+                if(modelSave.getId() == lession.getId()){
+                    getCurrentLession().setOffline(true);
+                    isSaved = true;
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
             }
-        }catch (Exception ex){
+            if (fileMp3.exists()) {
+                mp3URL = urll;
+                isOffline = true;
+            }else{
+                if(isSaved)
+                    saveOfflineLession();
+            }
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         try {
@@ -300,6 +340,11 @@ public class PlayerService extends Service implements OnPreparedListener,
         }
         Log.d(TAG, "url" + mp3URL);
         try {
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            if(isOffline)
+            {
+                mMediaPlayer.setDataSource(context, Uri.parse(mp3URL));
+            }else
             mMediaPlayer.setDataSource(mp3URL);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -383,9 +428,9 @@ public class PlayerService extends Service implements OnPreparedListener,
     private void notificationNormal() {
         Log.d(TAG, "notificationNormal");
         Context context = getApplicationContext();
-        String s = lessionPlaying.getName();
+        String s = getCurrentLession().getName();
         Notification notification = new Notification(
-                R.drawable.icon_cover_small, s, System.currentTimeMillis());
+                R.drawable.ic_launcher, s, System.currentTimeMillis());
         PendingIntent pendingintent = PendingIntent.getActivity(
                 this,
                 0,
@@ -394,8 +439,11 @@ public class PlayerService extends Service implements OnPreparedListener,
                         getPackageManager().getLaunchIntentForPackage(
                                 getPackageName()).getComponent()), 0);
         notification.contentView = mRemoteViews;
+        String parentName = "";
+        if(getCurrentLession().getParent() != null)
+            parentName = getCurrentLession().getParent().getName();
         notification.setLatestEventInfo(context, s,
-                "artist", pendingintent);
+                parentName, pendingintent);
         startForeground(1, notification);
         Log.d(TAG, "start nhe");
     }
@@ -412,10 +460,13 @@ public class PlayerService extends Service implements OnPreparedListener,
         try {
             mRemoteViews.setTextViewText(R.id.player_notification_tv_title,
                     lessionPlaying.getName());
+            String parentName = "";
+            if(getCurrentLession().getParent() != null)
+                parentName = getCurrentLession().getParent().getName();
             mRemoteViews.setTextViewText(R.id.player_notification_tv_singer,
-                    "artist");
+                    parentName);
             mRemoteViews.setImageViewResource(R.id.player_notification_img_bg,
-                    R.drawable.icon_cover_small);
+                    R.drawable.ic_launcher);
         } catch (Exception exception) {
             exception.printStackTrace();
             return;
@@ -461,6 +512,20 @@ public class PlayerService extends Service implements OnPreparedListener,
             startForeground(1, mNotificationBuilder.build());
             Log.d(TAG, "start nhe for resume");
         }
+    }
+
+    public void broadCastMusicChangeLession() {
+        Log.d("HOAN", "broadcast Lession");
+        Intent intent = new Intent();
+        intent.setAction(PlayerBroadcast.BR_CHANGE_LESSION);
+        sendBroadcast(intent);
+    }
+
+    public void broadCastFinishDownload() {
+        Log.d("HOAN", "broadcast Finish Download");
+        Intent intent = new Intent();
+        intent.setAction(PlayerBroadcast.BR_FINISH_DOWNLOAD);
+        sendBroadcast(intent);
     }
 
     public void broadCastMusicPlay() {
@@ -532,7 +597,7 @@ public class PlayerService extends Service implements OnPreparedListener,
         mMediaPlayer.start();
         broadCastMusicPlay();
 
-        pauseMediaPlayer();
+        //pauseMediaPlayer();
         statusGetSeekBar = Boolean.valueOf(true);
     }
 
@@ -542,15 +607,26 @@ public class PlayerService extends Service implements OnPreparedListener,
         }
     }
 
+    public void playSong(int index,ArrayList<Models> listLession){
+        indexSongPlay = index;
+        playSong(new Lession(listLession.get(index)));
+        addNewLessionArray(listLession);
+    }
+
     public void playSongIndex(int i) {
         Log.d(TAG, "Onplaysong index");
         Constants.indexLession = i;
-        if (listLession != null && i < listLession.size()) {
+        if (listLession != null && i < listLession.size() && i >= 0) {
+            stopForeground(true);
             indexSongPlay = i;
-            playSongInfoObject(listLession.get(i));
-
+            playSong(listLession.get(i));
+            broadCastMusicChangeLession();
         }
 
+    }
+
+    public ArrayList<Lession> getListLession(){
+        return listLession;
     }
 
     public void playSongObjectIndex(int i) {
@@ -558,11 +634,11 @@ public class PlayerService extends Service implements OnPreparedListener,
 
     }
 
-    public void addNewLessionArray(ArrayList<Lession> arraylist) {
+    public void addNewLessionArray(ArrayList<Models> arraylist) {
         indexSongPlay = 0;
         listLession.clear();
         for (int i = 0; i < arraylist.size(); i++) {
-            listLession.add(arraylist.get(i));
+            listLession.add(new Lession(arraylist.get(i)));
         }
         Constants.indexLession = indexSongPlay;
         // if (statusPlayMode == 3) {
@@ -574,6 +650,7 @@ public class PlayerService extends Service implements OnPreparedListener,
 
     public void playMusicWhenOnCompletetSong() {
         Log.e("Play", "Complete");
+        playSong(this.getCurrentLession());
     }
 
 
@@ -585,7 +662,11 @@ public class PlayerService extends Service implements OnPreparedListener,
         }
     }
 
+    private boolean isPrepared = false;
+
     public int getCurrentTimePlayer() {
+        if(!isPrepared)
+            return 0;
         int i = 0;
         MediaPlayer mediaplayer = mMediaPlayer;
         i = 0;
@@ -596,6 +677,8 @@ public class PlayerService extends Service implements OnPreparedListener,
     }
 
     public int getTotalTimePlayer() {
+        if(!isPrepared)
+            return 0;
         MediaPlayer mediaplayer = mMediaPlayer;
         int i = 0;
         if (mediaplayer != null) {
@@ -623,43 +706,43 @@ public class PlayerService extends Service implements OnPreparedListener,
         return statusPlayMode;
     }
 
-//	@Override
-//	public void onGainedAudioFocus() {
-//		Toast.makeText(getApplicationContext(), "gained audio focus.",
-//				Toast.LENGTH_SHORT).show();
-//		mAudioFocus = AudioFocus.Focused;
-//
-//		// restart media player with new focus settings
-//		if (statusPlayer == 1)
-//			configAndStartMediaPlayer();
-//	}
+    @Override
+    public void onGainedAudioFocus() {
+        Toast.makeText(getApplicationContext(), "gained audio focus.",
+                Toast.LENGTH_SHORT).show();
+        mAudioFocus = AudioFocus.Focused;
 
-//	@Override
-//	public void onLostAudioFocus(boolean canDuck) {
-//		// TODO Auto-generated method stub
-//		Toast.makeText(getApplicationContext(),
-//				"lost audio focus." + (canDuck ? "can duck" : "no duck"),
-//				Toast.LENGTH_SHORT).show();
-//		mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck
-//				: AudioFocus.NoFocusNoDuck;
-//
-//		// start/restart/pause media player with new focus settings
-//		if (mMediaPlayer != null && mMediaPlayer.isPlaying())
-//			configAndStartMediaPlayer();
-//
-//	}
+        // restart media player with new focus settings
+        if (statusPlayer == 1)
+            configAndStartMediaPlayer();
+    }
 
-//	void tryToGetAudioFocus() {
-//		if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
-//				&& mAudioFocusHelper.requestFocus())
-//			mAudioFocus = AudioFocus.Focused;
-//	}
-//
-//	void giveUpAudioFocus() {
-//		if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
-//				&& mAudioFocusHelper.abandonFocus())
-//			mAudioFocus = AudioFocus.NoFocusNoDuck;
-//	}
+    @Override
+    public void onLostAudioFocus(boolean canDuck) {
+        // TODO Auto-generated method stub
+        Toast.makeText(getApplicationContext(),
+                "lost audio focus." + (canDuck ? "can duck" : "no duck"),
+                Toast.LENGTH_SHORT).show();
+        mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck
+                : AudioFocus.NoFocusNoDuck;
+
+        // start/restart/pause media player with new focus settings
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying())
+            configAndStartMediaPlayer();
+
+    }
+
+    void tryToGetAudioFocus() {
+        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
+                && mAudioFocusHelper.requestFocus())
+            mAudioFocus = AudioFocus.Focused;
+    }
+
+    void giveUpAudioFocus() {
+        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
+                && mAudioFocusHelper.abandonFocus())
+            mAudioFocus = AudioFocus.NoFocusNoDuck;
+    }
 
     void configAndStartMediaPlayer() {
         if (mAudioFocus == AudioFocus.NoFocusNoDuck) {
@@ -747,8 +830,12 @@ public class PlayerService extends Service implements OnPreparedListener,
                     lengthCurrent += len1;
                     if ((lengthCurrent * 100) / lengthFile > percent) {
                         percent = (int) ((lengthCurrent * 100) / lengthFile);
-                        mBuilder.setProgress(100, Math.abs(percent), false);
-                        mNotificationManager.notify(111, mBuilder.build());
+                        if (VERSION.SDK_INT >= 11) {
+                            mBuilder.setProgress(100, Math.abs(percent), false);
+                            mNotificationManager.notify(111, mBuilder.build());
+                        }else{
+                            notificationNormal("Saving in process - " + percent + "%",getCurrentLession().getName(),2);
+                        }
                     }
                     fos.write(buffer, 0, len1);
 
@@ -756,17 +843,25 @@ public class PlayerService extends Service implements OnPreparedListener,
                 fos.close();
                 is.close();// till here, it works fine - .apk is download to my
                 // sdcard in download file
-                mBuilder.setContentText("Download complete")
-                        // Removes the progress bar
-                        .setProgress(0, 0, false);
-                mNotificationManager.notify(111, mBuilder.build());
-                mNotificationManager.cancel(111);
+                broadCastFinishDownload();
+                if (VERSION.SDK_INT >= 11) {
+                    mBuilder.setContentText("Download complete")
+                            // Removes the progress bar
+                            .setProgress(0, 0, false);
+                    mNotificationManager.notify(111, mBuilder.build());
+                }else{
+                    notificationNormal("Download complete!",getCurrentLession().getName(),111);
+                }
             } catch (Exception e) {
                 Log.d("ERROR", e.toString());
-                mBuilder.setContentText("Download error!")
-                        // Removes the progress bar
-                        .setProgress(0, 0, false);
-                mNotificationManager.notify(111, mBuilder.build());
+                if (VERSION.SDK_INT >= 11) {
+                    mBuilder.setContentText("Download error!")
+                            // Removes the progress bar
+                            .setProgress(0, 0, false);
+                    mNotificationManager.notify(111, mBuilder.build());
+                }else{
+                    notificationNormal("Download error!",getCurrentLession().getName(),111);
+                }
             }
         }
 
@@ -789,34 +884,61 @@ public class PlayerService extends Service implements OnPreparedListener,
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mBuilder = new NotificationCompat.Builder(getApplicationContext());
-            mBuilder.setContentTitle(name)
-                    .setContentText("saving in progress")
-                    .setSmallIcon(R.drawable.ic_launcher);
-            mBuilder.setProgress(100, 0, false);
-            mNotificationManager.notify(111, mBuilder.build());
+            if (VERSION.SDK_INT >= 11) {
+                mBuilder = new NotificationCompat.Builder(getApplicationContext());
+                mBuilder.setContentTitle(name)
+                        .setContentText("saving in progress")
+                        .setSmallIcon(R.drawable.icon_downloaded);
+                mBuilder.setProgress(100, 0, false);
+                mNotificationManager.notify(111, mBuilder.build());
+            } else {
+                notificationNormal("saving in progress",getCurrentLession().getName(),111);
+            }
+
         }
 
     }
 
     public void saveOfflineLession() {
-        Log.d("Save Offline",getCurrentLession().getName());
         if (this.getCurrentLession() != null) {
-            Models model = this.getCurrentLession();
-            while (model!= null && model.getId() > 0) {
-                mApp.getLocalStorage().insertModels(model);
-                model = model.getParent();
+            try {
+                Models model = this.getCurrentLession();
+                while (model != null && model.getId() > 0) {
+                    mApp.getLocalStorage().insertModels(model);
+                    model = model.getParent();
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
             }
             File outputFile = new File(Constants.FOLDER_LESSION + "/" +
                     this.getCurrentLession().getParent().getId(),
                     this.getCurrentLession().getId() + ".mp3");
-            if(outputFile.exists())
+            if (outputFile.exists())
                 return;
             new DownloadTask(this.getCurrentLession().getId(),
                     this.getCurrentLession().getParent().getId(),
                     this.getCurrentLession().getName(),
                     this.getCurrentLession().getLink()).execute();
         }
+    }
+
+    private void notificationNormal(String content,String subtitle,int id) {
+        Log.d(TAG, "notificationNormal");
+        Context context = getApplicationContext();
+        Notification notification = new Notification(
+                R.drawable.icon_downloaded, content, System.currentTimeMillis());
+        PendingIntent pendingintent = PendingIntent.getActivity(
+                this,
+                0,
+                (new Intent("android.intent.action.MAIN")).addCategory(
+                        "android.intent.category.LAUNCHER").setComponent(
+                        getPackageManager().getLaunchIntentForPackage(
+                                getPackageName()).getComponent()), 0);
+        notification.contentView = mRemoteViews;
+        notification.setLatestEventInfo(context, content,
+                subtitle, pendingintent);
+        startForeground(id,notification);
+        Log.d(TAG, "start nhe");
     }
 
 }

@@ -1,13 +1,5 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-       <item name="android:screenOrientation">portrait</item>
-        <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/MyActionBar</item>
-    </style>
-
     <style name="PleaseWaitText">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:shadowColor">@android:color/black</item>
@@ -51,6 +43,18 @@
         <item name="android:textColor">@android:color/white</item>
         <!-- The textColor property is backward compatible with the Support Library -->
     </style>
-
+    <style name="MyDialogTheme" parent="android:Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:layout_margin">20dp</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
 
 </resources>

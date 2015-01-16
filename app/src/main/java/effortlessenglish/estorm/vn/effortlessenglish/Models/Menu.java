@@ -29,4 +29,7 @@ public class Menu extends Models {
         }
         setType(TYPE_MODEL.MENU);
     }
+    public Menu(Models models){
+        super(models);
+    }
 }

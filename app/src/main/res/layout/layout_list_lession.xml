@@ -5,14 +5,25 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
     <ListView
-        android:id="@+id/player_fragment_lession_listview"
+        android:id="@+id/player_fragment_lession_listview_parent"
         android:scrollbars="none"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:listSelector="@android:color/transparent"
         android:drawSelectorOnTop="false"
         android:cacheColorHint="#00000000"
-        android:divider="@android:color/transparent" />
+        android:dividerHeight="1dp"
+        android:divider="@color/orgrince" />
+    <ListView
+        android:id="@+id/player_fragment_lession_listview"
+        android:layout_marginLeft="20dp"
+        android:scrollbars="none"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:listSelector="@android:color/transparent"
+        android:drawSelectorOnTop="false"
+        android:cacheColorHint="#00000000"
+        android:dividerHeight="1dp"
+        android:divider="@color/blue_action_bar" />
 </LinearLayout>

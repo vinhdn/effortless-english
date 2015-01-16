@@ -10,8 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import effortlessenglish.estorm.vn.effortlessenglish.Models.Lession;
-import effortlessenglish.estorm.vn.effortlessenglish.Models.SubMenu;
+import effortlessenglish.estorm.vn.effortlessenglish.Models.Models;
 import effortlessenglish.estorm.vn.effortlessenglish.R;
 
 /**
@@ -19,9 +18,9 @@ import effortlessenglish.estorm.vn.effortlessenglish.R;
  */
 public class SubMenuItemAdapter extends BaseAdapter{
     private Context mContext;
-    private ArrayList<SubMenu> data;
-    private ArrayList<Lession> data2;
-    public SubMenuItemAdapter(Context context, ArrayList<SubMenu> data,ArrayList<Lession> data2){
+    private ArrayList<Models> data;
+    private ArrayList<Models> data2;
+    public SubMenuItemAdapter(Context context, ArrayList<Models> data,ArrayList<Models> data2){
         this.mContext = context;
         this.data = data;
         this.data2 = data2;
@@ -68,10 +67,16 @@ public class SubMenuItemAdapter extends BaseAdapter{
         }else{
             holder = (MenuHolder)view.getTag();
         }
-        if(data != null)
+        if(data != null) {
             holder.title.setText(data.get(p).getName());
-        if(data2 != null)
+            if (data.get(p).getId() > 0)
+                holder.image.setImageResource(data.get(p).getImage());
+        }
+        if(data2 != null) {
             holder.title.setText(data2.get(p).getName());
+            if(data2.get(p).getId() > 0)
+                holder.image.setImageResource(data2.get(p).getImage());
+        }
         return view;
     }
 

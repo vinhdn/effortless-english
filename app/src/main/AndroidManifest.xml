@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- This meta-data tag is required to use Google Play Services. -->
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version" />
+
     <application
         android:name=".EffortlessApplication"
         android:allowBackup="true"
@@ -15,7 +20,8 @@
         android:theme="@style/CustomActionBarTheme" >
         <activity
             android:name=".Activity.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,13 +33,16 @@
             android:label="@string/title_activity_main" />
         <activity
             android:name=".Activity.MenuActivity"
-            android:label="@string/title_activity_menu" />
+            android:label="@string/title_activity_menu"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.PlayerActivity"
-            android:label="@string/title_activity_player" />
+            android:label="@string/title_activity_player"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.SubMenuActivity"
-            android:label="@string/title_activity_sub_menu" >
+            android:label="@string/title_activity_sub_menu"
+            android:screenOrientation="portrait" >
         </activity>
 
         <service android:name=".Services.PlayerService" />
@@ -41,6 +50,26 @@
         <activity
             android:name=".Activity.LessionActivity"
             android:label="@string/title_activity_lession" >
+        </activity>
+        <activity
+            android:name="com.facebook.LoginActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/app_id" />
+
+        <!-- Include the AdActivity configChanges and theme. -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name=".Activity.IntroActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/title_activity_intro" >
         </activity>
     </application>
 

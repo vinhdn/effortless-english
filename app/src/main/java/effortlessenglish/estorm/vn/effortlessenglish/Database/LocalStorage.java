@@ -6,6 +6,7 @@ import android.os.StatFs;
 import android.util.Log;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import effortlessenglish.estorm.vn.effortlessenglish.Models.Models;
 
@@ -23,6 +24,10 @@ public class LocalStorage {
 		lsDb = new LocalStorageDB(context);
 		lsDb.open();
 	}
+
+    public ArrayList<Models> getListsModelsOfParent(Models parent, int type){
+        return lsDb.getListModels(parent,type);
+    }
 
     public void insertModels(Models models){
         lsDb.insertModels(models);

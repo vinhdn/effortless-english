@@ -13,10 +13,12 @@
         android:layout_height="fill_parent"
         android:layout_above="@+id/include_layout_control"
         />
+
     <include
+
         android:id="@+id/include_layout_control"
         android:layout_alignParentBottom="true"
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/layout_control_height"
+        android:layout_height="wrap_content"
         layout="@layout/layout_control_playing" />
 </RelativeLayout>

@@ -82,9 +82,9 @@ public class LocalStorageDB {
         try{
             cursor = database.query(TABLE_MODEL,null,
                     COLUMN_ID + " = " + id,null,null,null,null);
+            cursor.moveToFirst();
             if(cursor != null){
-                cursor.moveToFirst();
-                    Models models = getModelFromCursor(cursor);
+                Models models = getModelFromCursor(cursor);
                 cursor.close();
                 return models;
             }
@@ -94,17 +94,18 @@ public class LocalStorageDB {
         return new Models();
     }
 
-    public ArrayList<Models> getListModels(int subID, int type){
+    public ArrayList<Models> getListModels(Models parent, int type){
         ArrayList<Models> listData = new ArrayList<>();
         Cursor cursor = null;
         try{
             cursor = database.query(TABLE_MODEL,null,
-                    COLUMN_ID_PAR + " = " + subID +
+                    COLUMN_ID_PAR + " = " + parent.getId() +
                     " AND " + COLUMN_TYPE + " = " + type,null,null,null,null);
+            cursor.moveToFirst();
             if(cursor != null){
-                cursor.moveToFirst();
                 do{
                     Models models = getModelFromCursor(cursor);
+                    models.setParent(parent);
                     listData.add(models);
                 }while (cursor.moveToNext());
                 cursor.close();
@@ -135,7 +136,7 @@ public class LocalStorageDB {
     private ContentValues getCVFromModel(Models models){
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, models.getId());
-        values.put(COLUMN_TYPE, models.getType().ordinal());
+        values.put(COLUMN_TYPE, models.getType().getValue());
         values.put(COLUMN_NAME, models.getName());
         values.put(COLUMN_DES, models.getDescription());
         values.put(COLUMN_ID_PAR,models.getIdParMenu());

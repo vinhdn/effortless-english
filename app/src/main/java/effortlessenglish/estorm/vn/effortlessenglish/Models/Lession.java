@@ -8,6 +8,17 @@ import org.json.JSONObject;
  */
 public class Lession extends Menu {
 
+    public boolean isOffline() {
+        return isOffline;
+    }
+
+    public void setOffline(boolean isOffline) {
+        this.isOffline = isOffline;
+    }
+
+    private boolean isOffline = false;
+
+
     public String getLargeImage() {
         return largeImage;
     }
@@ -23,6 +34,10 @@ public class Lession extends Menu {
         super();
     }
 
+    public Lession(Models models){
+        super(models);
+    }
+
     public Lession(JSONObject jsonObject, Models parent) throws JSONException {
         super(jsonObject,parent);
         if(!jsonObject.isNull("Link")){
@@ -30,9 +45,6 @@ public class Lession extends Menu {
         }
         if(!jsonObject.isNull("Likes")){
             setLikes(jsonObject.getInt("Likes"));
-        }
-        if(!jsonObject.isNull("SmallImage")){
-            setImage(jsonObject.getString("SmallImage"));
         }
         this.setType(TYPE_MODEL.LESSION);
     }

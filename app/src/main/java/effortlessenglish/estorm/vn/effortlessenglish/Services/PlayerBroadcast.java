@@ -3,7 +3,6 @@ package effortlessenglish.estorm.vn.effortlessenglish.Services;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import effortlessenglish.estorm.vn.effortlessenglish.Base.BaseActivity;
 
@@ -19,6 +18,8 @@ public class PlayerBroadcast extends BroadcastReceiver{
     public static String BR_STOP = "vn.vinhblue.effortless.STOP";
     public static String BR_LOADED = "vn.vinhblue.effortless.LOADED";
     public static String BR_LOADING = "vn.vinhblue.effortless.LOADING";
+    public static String BR_CHANGE_LESSION = "vn.vinhblue.effortless.CHANGELESSION";
+    public static String BR_FINISH_DOWNLOAD = "vn.vinhblue.effortless.FINISHDOWNLOAD";
 
     private BaseActivity activity;
 
@@ -29,7 +30,6 @@ public class PlayerBroadcast extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        Log.d("ACTION BROADCAST", action);
         activity.onPlayerChange(action);
         if(action.equals(BR_PLAY)){
             activity.onPlayerPlay();
@@ -56,6 +56,13 @@ public class PlayerBroadcast extends BroadcastReceiver{
         }
         if(action.equals(BR_LOADING)){
             return;
+        }
+        if(action.equals(BR_CHANGE_LESSION)){
+            activity.onConnectServcie();
+            return;
+        }
+        if(action.equals(BR_FINISH_DOWNLOAD)){
+
         }
     }
 }
